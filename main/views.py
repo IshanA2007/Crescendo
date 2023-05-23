@@ -1,3 +1,19 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from . import process
 
-# Create your views here.
+
+def index(request):
+    file = None
+    returnfile = None
+    if request.method == "POST" and "file" in request.FILES:
+        file = request.FILES["file"]
+
+    ctx = {
+        "file": file,
+        "retfile": returnfile,
+    }
+    return render(
+        request,
+        "index.html",
+        context={"file": file},
+    )
