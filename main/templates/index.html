@@ -64,7 +64,7 @@
         -webkit-text-fill-color: transparent;
         text-shadow: 0px 0px 6px #fff;
         color: #fff;
-        box-shadow: 0px 0px 8px #00ff00;
+        box-shadow: 0px 0px 8px #00e5ff;
         padding: 10px 20px;
         border-radius: 4px;
         cursor: pointer;
@@ -92,13 +92,50 @@
             background-position: 0% 82%;
         }
     }
+
+    .custom-file-input {
+        position: absolute;
+        left: -9999px;
+        display: block;
+        margin: 0 auto;
+        margin-bottom: 10px;
+        position: relative;
+        z-index: 1;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .custom-file-label {
+        background: linear-gradient(45deg, #00e5ff, #f500ff);
+        box-shadow: #f500ff;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0px 0px 6px #fff;
+        color: black;
+        padding-left: 135px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        width: 100%;
+        transition: background-color 0.3s ease;
+    }
+
+    /* Hide "No file chosen" text */
+    .custom-file-label::after {
+        content: none;
+    }
 </style>
 
+
 <div class="form-container">
-    <h2>Upload File</h2>
+    <h2>Crescendo</h2>
     <form method="post" enctype="multipart/form-data" action="{% url 'index' %}">
         {% csrf_token %}
-        <input type="file" name="file" accept="audio/*">
+        <label for="file-upload" class="custom-file-label">Choose File</label>
+        <input id="file-upload" class="custom-file-input" type="file" name="file" accept="audio/*">
+        <br />
         <button type="submit">Upload</button>
     </form>
 </div>
