@@ -147,16 +147,23 @@ def process(file, instructions):
     y, sr = librosa.load(audio_file, sr=None)
     pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
     pitch = np.mean(pitches)
-
-    # create dictionary of all pitches
-
     # process instructions
-
+    allnotes = instructions.split(" ")
+    instructnotes = []
+    instructlength = []
+    for note in allnotes:
+        instructnotes = note.split("-")[0]
+        instructlength = note.split("-")[1]
     # for each instruction, change note pitch and/or length
-
+    song = []
+    for i in range(len(instructnotes)):
+        song.append(change_note_pitch(change_note_len(audio_file)))
     # compile all the new notes into a SONG
-    return
+    return combine_notes(song)
 
+def combine_notes(song):
+    # given a list of music files, concatenate together
+    return
 
 def change_note_pitch(file, y, sr, original, note):
     # determine target and original frequencies
