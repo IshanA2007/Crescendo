@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
-from . import process
+from .extras import process
+
+# from .extras import magenta
 
 
 def index(request):
