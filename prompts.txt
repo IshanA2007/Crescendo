@@ -1,0 +1,3 @@
+Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
+
+After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply.

@@ -3,6 +3,10 @@ import numpy as np
 import soundfile as sf
 import openai
 import math
+import magenta.music as mm
+from magenta.models.melody_rnn import melody_rnn_sequence_generator
+from magenta.models.shared import sequence_generator_bundle
+import random
 
 # figure out how to make this so not everyone can see my api key
 
@@ -161,9 +165,11 @@ def process(file, instructions):
     # compile all the new notes into a SONG
     return combine_notes(song)
 
+
 def combine_notes(song):
     # given a list of music files, concatenate together
     return
+
 
 def change_note_pitch(file, y, sr, original, note):
     # determine target and original frequencies
@@ -182,3 +188,47 @@ def change_note_pitch(file, y, sr, original, note):
 
 def change_note_len(file, len):
     return
+
+
+def test():
+    # Load the pre-trained model
+    bundle_path = "path/to/melody_rnn.mag"
+    bundle = sequence_generator_bundle.read_bundle_file(bundle_path)
+    generator_map = melody_rnn_sequence_generator.get_generator_map()
+    generator = generator_map["melody_rnn"](checkpoint=None, bundle=bundle)
+
+    # Set the desired generation parameters
+    temperature = 1.0  # Controls the randomness of the generated output
+    num_steps = 128  # Length of the generated sequence in steps (16 steps per bar)
+    min_duration = 0.25  # Minimum duration for a note in beats
+    max_duration = 2.0  # Maximum duration for a note in beats
+    quantization_steps = 4  # Number of steps per quarter note
+
+    # Generate a melody
+    input_sequence = mm.Melody()
+    input_sequence.from_event_list([(60, 100, 1.0)])  # Start with a C4 note
+    generate_args = (
+        melody_rnn_sequence_generator.MelodyRnnSequenceGenerator.generate_args(
+            num_steps, temperature
+        )
+    )
+    generated_sequence = generator.generate(input_sequence, generate_args)
+
+    # Extract the notes from the generated sequence with quantized timings
+    notes = []
+    current_step = 0
+    for note in generated_sequence.notes:
+        if note.is_drum:  # Skip drum notes
+            continue
+        pitch = mm.constants.MIDI_NOTE_NUMBER_TO_PITCH_NAME[note.pitch]
+        duration = random.uniform(min_duration, max_duration)
+        quantized_start_step = mm.quantize_to_step(note.start_time, quantization_steps)
+        quantized_end_step = mm.quantize_to_step(note.end_time, quantization_steps)
+        start_time = quantized_start_step * (4.0 / quantization_steps)
+        end_time = quantized_end_step * (4.0 / quantization_steps)
+        notes.append((pitch, start_time, end_time))
+        current_step += note.quantized_end_step - note.quantized_start_step
+
+    # Print the generated notes
+    for note in notes:
+        print(note)
