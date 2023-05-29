@@ -174,7 +174,7 @@ def combine_notes(song):
     for file in song[1:]:
         thispart, _ = librosa.load(file, sr=None)
         audio = np.concatenate((audio, thispart))
-    return audio
+    return audio # do we need to write back to audio file here? probably...
 
 
 def change_note_pitch(file, y, sr, original, note):
