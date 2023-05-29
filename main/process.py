@@ -192,8 +192,20 @@ def change_note_pitch(file, y, sr, original, note):
     return
 
 
-def change_note_len(file, len):
-    return
+def change_note_len(file, length):
+    y, sr = librosa.load(file)
+
+    # figure out how much to stretch/squish by
+    original_length = librosa.get_duration(y=y, sr=sr)
+    stretch_factor = original_length / length
+
+    # apply change
+    length_adj_file = librosa.effects.time_stretch(y, stretch_factor)
+
+    # save to new file
+    modified_file = f"modified_{file}" # this might cause the file to be overwritten???
+    sf.write(modified_file, length_adj_file, sr)
+    return modified_file
 
 
 def test():
