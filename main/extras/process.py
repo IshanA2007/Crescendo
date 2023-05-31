@@ -183,8 +183,13 @@ def change_note_pitch(file, y, sr, original, note):
     # generate new pitches by pitch shifting
     y_pitch_shifted = librosa.effects.pitch_shift(y, sr, n_steps=n_steps)
     # create new audio with the new pitches
+<<<<<<< HEAD
     modified_file = f"modified_{file}"  # this might cause the file to be overwritten???
     sf.write(modified_file, y_pitch_shifted, sr)
+=======
+    modified_file = f"modified_{file}" # will change later
+    sf.write(modified_file, length_adj_file, sr)
+>>>>>>> 786e7eb50ef0594999be73e15d1d6d755dede59e
     # return the audio
     return modified_file
 
