@@ -1,7 +1,7 @@
 # 🎵 Crescendo 🎵
 A little personal project to make some groovy tunes!
 
-Crescendo is a web-application that allows a user to input any sound they want and receive a personalized soundtrack that can be sang to or enjoyed in some other way! One day I watched Charlie Puth make an entire song from just a spoon and a glass and I thought wow, I want to do that too. But then, I realized I have no music skill whatsoever, so instead I decided to use my programming skills and AI to do it for me! 
+Crescendo is a user-friendly and innovative web-application that allows users to generate personalized soundtracks by inputting any desired audio. This technology promotes creative expression through dynamic music creation and enjoyment. The idea for this application was inspired by a memorable instance where Charlie Puth composed a whole song using unconventional musical instruments. However, recognizing my own limited musical abilities, I opted for a technological solution and used my programming and AI expertise to pioneer Crescendo.
 
 ## 🥅 Goals
 
