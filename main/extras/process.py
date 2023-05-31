@@ -165,7 +165,13 @@ def process(file, instructions):
 
 def combine_notes(song):
     # given a list of music files, concatenate together
-    return
+    # load first audio file to add everything to
+    audio, sr = librosa.load(song[0], sr=None)
+    # loop and append everything else
+    for file in song[1:]:
+        thispart, _ = librosa.load(file, sr=None)
+        audio = np.concatenate((audio, thispart))
+    return audio # do we need to write back to audio file here? probably...
 
 
 def change_note_pitch(file, y, sr, original, note):
