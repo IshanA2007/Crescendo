@@ -171,7 +171,7 @@ def combine_notes(song):
     for file in song[1:]:
         thispart, _ = librosa.load(file, sr=None)
         audio = np.concatenate((audio, thispart))
-    return audio # do we need to write back to audio file here? probably...
+    return audio  # do we need to write back to audio file here? probably...
 
 
 def change_note_pitch(file, y, sr, original, note):
@@ -182,11 +182,11 @@ def change_note_pitch(file, y, sr, original, note):
     n_steps = 12 * math.log2(target_freq / original_freq)
     # generate new pitches by pitch shifting
     y_pitch_shifted = librosa.effects.pitch_shift(y, sr, n_steps=n_steps)
-
     # create new audio with the new pitches
-
+    modified_file = f"modified_{file}"  # this might cause the file to be overwritten???
+    sf.write(modified_file, y_pitch_shifted, sr)
     # return the audio
-    return
+    return modified_file
 
 
 def change_note_len(file, length):
