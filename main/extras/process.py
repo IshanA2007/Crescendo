@@ -184,9 +184,10 @@ def change_note_pitch(file, y, sr, original, note):
     y_pitch_shifted = librosa.effects.pitch_shift(y, sr, n_steps=n_steps)
 
     # create new audio with the new pitches
-
+    modified_file = f"modified_{file}" # will change later
+    sf.write(modified_file, length_adj_file, sr)
     # return the audio
-    return
+    return modified_file
 
 
 def change_note_len(file, length):
