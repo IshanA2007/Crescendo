@@ -12,7 +12,7 @@ Crescendo is a web-application that allows a user to input any sound they want a
 
 ## 🚀 Milestones:
 
-- 
+5/31/2023 - Determined which AI model to use
 
 
 *This is a work in progress!*
