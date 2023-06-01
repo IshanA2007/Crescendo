@@ -157,8 +157,11 @@ def process(file, instructions):
         instructlength = note.split("-")[1]
     # for each instruction, change note pitch and/or length
     song = []
+    original = 1 # What is original? It is needed for the change_note_pitch method...
     for i in range(len(instructnotes)):
-        song.append(change_note_pitch(change_note_len(audio_file)))
+        newfile = f"{i}{audio_file}"
+        sf.write(newfile, y, sr)
+        song.append(change_note_pitch(change_note_len(newfile, instructlength[i])), original, instructnotes[i])
     # compile all the new notes into a SONG
     return combine_notes(song)
 
@@ -174,7 +177,8 @@ def combine_notes(song):
     return audio  # do we need to write back to audio file here? probably...
 
 
-def change_note_pitch(file, y, sr, original, note):
+def change_note_pitch(file, original, note):
+    y, sr = librosa.load(file)
     # determine target and original frequencies
     target_freq = notes[note]
     original_freq = original
@@ -183,10 +187,9 @@ def change_note_pitch(file, y, sr, original, note):
     # generate new pitches by pitch shifting
     y_pitch_shifted = librosa.effects.pitch_shift(y, sr, n_steps=n_steps)
     # create new audio with the new pitches
-    modified_file = f"modified_{file}"  # will change later
-    sf.write(modified_file, y_pitch_shifted, sr)
+    sf.write(file, y_pitch_shifted, sr)
     # return the audio
-    return modified_file
+    return file
 
 
 def change_note_len(file, length):
@@ -200,6 +203,5 @@ def change_note_len(file, length):
     length_adj_file = librosa.effects.time_stretch(y, stretch_factor)
 
     # save to new file
-    modified_file = f"modified_{file}"  # this might cause the file to be overwritten???
-    sf.write(modified_file, length_adj_file, sr)
-    return modified_file
+    sf.write(file, length_adj_file, sr)
+    return file
