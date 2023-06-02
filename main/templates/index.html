@@ -49,9 +49,19 @@
         color: white;
         padding: 10px;
         border-radius: 4px;
-
-
         width: 100%;
+    }
+
+    .form-container input[type="text"] {
+        margin-bottom: 20px;
+        text-align: center;
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        border: none;
+        box-shadow: none;
     }
 
     .form-container input[type="file"]::file-selector {
@@ -130,11 +140,14 @@
 
 
 <div class="form-container">
+    {{theme}}
     <h2>Crescendo</h2>
     <form method="post" enctype="multipart/form-data" action="{% url 'index' %}">
         {% csrf_token %}
         <label for="file-upload" class="custom-file-label">Choose File</label>
         <input id="file-upload" class="custom-file-input" type="file" name="file" accept="audio/*">
+        <br />
+        <input type="text" name="theme" placeholder="Enter Theme" required>
         <br />
         <button type="submit">Upload</button>
     </form>
