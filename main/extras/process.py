@@ -163,10 +163,10 @@ def process(file, instructions):
         sf.write(newfile, y, sr)
         song.append(change_note_pitch(change_note_len(newfile, instructlength[i])), pitch, notes[instructnotes[i]])
     # compile all the new notes into a SONG
-    return combine_notes(song)
+    return combine_notes(song, f"{dirname}FINAL{filename}")
 
 
-def combine_notes(song):
+def combine_notes(song, filename):
     # given a list of music files, concatenate together
     # load first audio file to add everything to
     audio, sr = librosa.load(song[0], sr=None)
@@ -174,6 +174,8 @@ def combine_notes(song):
     for file in song[1:]:
         thispart, _ = librosa.load(file, sr=None)
         audio = np.concatenate((audio, thispart))
+    y, sr = librosa.load(audio)
+    sf.write(filename, y, sr)
     return audio  # do we need to write back to audio file here? probably...
 
 
