@@ -158,7 +158,8 @@ def process(file, instructions):
     # for each instruction, change note pitch and/or length
     song = []
     for i in range(len(instructnotes)):
-        newfile = f"{i}{audio_file}"
+        dirname, filename = os.path.split(audio_file)
+        newfile = f"{dirname}{i}{filename}"
         sf.write(newfile, y, sr)
         song.append(change_note_pitch(change_note_len(newfile, instructlength[i])), pitch, notes[instructnotes[i]])
     # compile all the new notes into a SONG
