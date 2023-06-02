@@ -10,11 +10,11 @@ def index(request):
     returnfile = None
     if request.method == "POST" and "file" in request.FILES:
         file = request.FILES["file"]
-    file_path = os.path.join("extras/audios", file.name)  # Construct the file path
+        file_path = os.path.join("extras/audios", file.name)  # Construct the file path
 
-    with open(file_path, "wb") as destination:
-        for chunk in file.chunks():
-            destination.write(chunk)
+        with open(file_path, "wb") as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
     ctx = {
         "file": file,
         "retfile": returnfile,
