@@ -3,7 +3,7 @@ import numpy as np
 import soundfile as sf
 import openai
 import math
-
+import os
 
 # figure out how to make this so not everyone can see my api key
 # env var
