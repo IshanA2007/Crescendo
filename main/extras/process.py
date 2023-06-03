@@ -4,10 +4,11 @@ import soundfile as sf
 import openai
 import math
 import os
+from dotenv import dotenv_values
 
 # figure out how to make this so not everyone can see my api key
-# env var
-openai.api_key = "blahblah"
+env_vars = dotenv_values(".env")
+openai.api_key = env_vars["api_key"]
 notes = {
     "C0": 16.35,
     "C#0/Db0": 17.32,
@@ -238,8 +239,3 @@ def change_note_len(file, length):
     # save to new file
     sf.write(file, length_adj_file, sr)
     return file
-
-
-# pending (possible) implementation
-def convert_to_wav(file):
-    return
