@@ -20,7 +20,7 @@ def index(request):
             ) as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
-        returnfile = process.process(file, process.query(theme))
+        returnfile = process.process(BASE_DIR + "/main/extras/audios/" + file.name, process.query(theme))
     ctx = {"file": file, "retfile": returnfile, "theme": theme}
     return render(
         request,

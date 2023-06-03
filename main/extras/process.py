@@ -6,6 +6,8 @@ import math
 import os
 from dotenv import dotenv_values
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # figure out how to make this so not everyone can see my api key
 env_vars = dotenv_values(".env")
 openai.api_key = env_vars["api_key"]
@@ -179,8 +181,8 @@ def process(file, instructions):
     # for each instruction, change note pitch and/or length
     song = []
     for i in range(len(instructnotes)):
-        finalfile = "/main/extras/audios/final.wav"
-        tempfile = "/main/extras/audios/temp.wav"
+        finalfile = BASE_DIR + "/main/extras/audios/final.wav"
+        tempfile = BASE_DIR + "/main/extras/audios/temp.wav"
         sf.write(tempfile, y, sr)
         # change length
         change_note_len(tempfile, instructlength[i])
