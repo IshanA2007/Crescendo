@@ -12,9 +12,9 @@ Crescendo is a web-application that allows a user to input any sound they want a
 
 ## 🚀 Milestones:
 
-5/31/2023 - Determined which AI model to use
-6/2/2023 - Finished audio manipulation processes
-6/3/2023 - Figured out how to use a .gitignore file
+- 5/31/2023 - Determined which AI model to use
+- 6/2/2023 - Finished audio manipulation processes
+- 6/3/2023 - Figured out how to use a .gitignore file
 
 *This is a work in progress!*
 
