@@ -218,3 +218,8 @@ def change_note_len(file, length):
     # save to new file
     sf.write(file, length_adj_file, sr)
     return file
+
+
+# pending (possible) implementation
+def convert_to_wav(file):
+    return

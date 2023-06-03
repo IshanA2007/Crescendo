@@ -20,7 +20,8 @@ def index(request):
             ) as destination:
                 for chunk in file.chunks():
                     destination.write(chunk)
-    ctx = {"file": file, "retfile": None, "theme": theme}
+        returnfile = process.process(file, process.query(theme))
+    ctx = {"file": file, "retfile": returnfile, "theme": theme}
     return render(
         request,
         "index.html",
