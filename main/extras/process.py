@@ -138,7 +138,7 @@ notes = {
 # gpt prompt-response
 def query(theme):
     # create a prompt that can be fed to chatgpt to produce instructions personalized by theme
-    prompt ="""Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
+    prompt =f"""Create a song by outputting a list of notes. This song should fit the theme: {theme}. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
 
     After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply. Output these lines directly below the first line, and NOTHING ELSE. Your output should not look like:
     ---
@@ -162,43 +162,63 @@ def query(theme):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
     )
+    print(response["choices"][0]["message"]["content"])
     return response["choices"][0]["message"]["content"]
 
 
 def process(file, instructions):
-    # determine starting pitch
-    audio_file = file
-    y, sr = librosa.load(audio_file, sr=None)
-    pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-    pitch = np.mean(pitches)
-    # process instructions
-    allnotes = instructions.split(" ")
-    instructnotes = []
-    instructlength = []
-    for note in allnotes:
-        instructnotes = note.split("-")[0]
-        instructlength = note.split("-")[1]
-    # for each instruction, change note pitch and/or length
-    song = []
-    for i in range(len(instructnotes)):
-        finalfile = BASE_DIR + "/main/extras/audios/final.wav"
-        tempfile = BASE_DIR + "/main/extras/audios/temp.wav"
-        sf.write(tempfile, y, sr)
-        # change length
-        change_note_len(tempfile, instructlength[i])
-        # change pitch
-        change_note_pitch(tempfile, pitch, instructnotes[i])
-        # append temp to final
-        combine_notes(finalfile, tempfile)
-        # pseudo for new process
-        # for each instruction, change note length of original, save to another audio file (temp)
-        # then feed this temp audio file into the change pitch and overwrite temp
-        # then combine temp to a final audio file which is returned at the end
-        # repeat by overriding temp (this method uses only 3 files instead of having a bunch created)
-
-    # return the final file somehow
+    songdata = []
+    harmonizeIndex = 0
+    for line in instructions.split("\n"):
+        # store this part of the song
+        harmonizeIndex += 1
+        thispart = BASE_DIR + f"/extras/audios/part{harmonizeIndex}.wav"
+        songdata.append(thispart)
+        # determine starting pitch
+        audio_file = file
+        y, sr = librosa.load(audio_file, sr=None)
+        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+        pitch = np.mean(pitches)
+        # process instructions
+        allnotes = instructions.split(" ")
+        instructnotes = []
+        instructlength = []
+        for note in allnotes:
+            instructnotes = note.split("-")[0]
+            instructlength = float(note.split("-")[1])
+        # for each instruction, change note pitch and/or length
+        song = []
+        for i in range(len(instructnotes)):
+            print(i)
+            tempfile = BASE_DIR + "/extras/audios/temp.wav"
+            sf.write(tempfile, y, sr)
+            # change length
+            change_note_len(tempfile, instructlength[i])
+            # change pitch
+            change_note_pitch(tempfile, pitch, instructnotes[i])
+            # append temp to final
+            combine_notes([thispart, tempfile], thispart)
+            # pseudo for new process
+            # for each instruction, change note length of original, save to another audio file (temp)
+            # then feed this temp audio file into the change pitch and overwrite temp
+            # then combine temp to a final audio file which is returned at the end
+            # repeat by overriding temp (this method uses only 3 files instead of having a bunch created)
+    finalfile = BASE_DIR + "/extras/audios/final.wav"
+    harmonize(songdata, finalfile) # these need to layer on top of each other
     return finalfile
 
+def harmonize(harmonies, filename):
+    # given a list of music files, layer on top of each other
+    y, sr = librosa.load(harmonies[0], sr=None)
+    common_sr = 44100 # just in case the files are different
+    y = librosa.resample(y, sr, common_sr)
+    mix = y
+    for i in range(1, len(harmonies)):
+        y, sr = librosa.load(harmonies[i], sr=None)
+        y = librosa.resample(y, sr, common_sr)
+        mix = np.add(mix, y)
+    mix = librosa.util.normalize(mix) # we don't want a value over 1 or things will break
+    sf.write(filename, mix, common_sr)
 
 def combine_notes(song, filename):
     # given a list of music files, concatenate together
@@ -210,7 +230,6 @@ def combine_notes(song, filename):
         audio = np.concatenate((audio, thispart))
     y, sr = librosa.load(audio)
     sf.write(filename, y, sr)
-    return audio  # do we need to write back to audio file here? probably...
 
 
 def change_note_pitch(file, original, note):
