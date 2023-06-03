@@ -158,12 +158,23 @@ def process(file, instructions):
     # for each instruction, change note pitch and/or length
     song = []
     for i in range(len(instructnotes)):
-        dirname, filename = os.path.split(audio_file)
-        newfile = f"{dirname}{i}{filename}"
-        sf.write(newfile, y, sr)
-        song.append(change_note_pitch(change_note_len(newfile, instructlength[i])), pitch, notes[instructnotes[i]])
-    # compile all the new notes into a SONG
-    return combine_notes(song, f"{dirname}FINAL{filename}")
+        finalfile = "/main/extras/audios/final.wav"
+        tempfile = "/main/extras/audios/temp.wav"
+        sf.write(tempfile, y, sr)
+        # change length
+        change_note_len(tempfile, instructlength[i])
+        # change pitch
+        change_note_pitch(tempfile, pitch, instructnotes[i])
+        # append temp to final
+        combine_notes(finalfile, tempfile)
+        # pseudo for new process
+        # for each instruction, change note length of original, save to another audio file (temp)
+        # then feed this temp audio file into the change pitch and overwrite temp
+        # then combine temp to a final audio file which is returned at the end
+        # repeat by overriding temp (this method uses only 3 files instead of having a bunch created)
+
+    # return the final file somehow
+    return finalfile
 
 
 def combine_notes(song, filename):
