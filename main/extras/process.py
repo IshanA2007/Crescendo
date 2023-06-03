@@ -135,7 +135,27 @@ notes = {
 # gpt prompt-response
 def query(theme):
     # create a prompt that can be fed to chatgpt to produce instructions personalized by theme
-    prompt = "Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2 After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply."
+    prompt ="""Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
+
+    After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply. Output these lines directly below the first line, and NOTHING ELSE. Your output should not look like:
+    ---
+    Here's a song with a list of notes:
+
+    C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1
+
+    And here are two harmonized lines that fit perfectly with the first line:
+
+    E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 E4-1 B3-2 C4-1 B3-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 B3-2 C4-1 B3-1
+
+    G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1
+
+    I hope you enjoy this harmonious song!
+    ---
+    It should instead look like:
+    C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1
+    E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 E4-1 B3-2 C4-1 B3-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 B3-2 C4-1 B3-1
+    G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1"""
+
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
     )
