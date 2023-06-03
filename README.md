@@ -18,5 +18,5 @@ Start date: 5/22/2023
 - 6/2/2023 - Finished audio manipulation processes
 - 6/3/2023 - Figured out how to use a .gitignore file
 
-End date: *This is a work in progress!*
-
+End date:
+*This is a work in progress!*
