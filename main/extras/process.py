@@ -140,7 +140,9 @@ def query(theme):
     # create a prompt that can be fed to chatgpt to produce instructions personalized by theme
     prompt =f"""Create a song by outputting a list of notes. This song should fit the theme: {theme}. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
 
-    After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply. Output these lines directly below the first line, and NOTHING ELSE. Your output should not look like:
+    After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. Here are the notes you can use:
+    {notes.keys()}
+    The same rules apply. Output these lines directly below the first line, and NOTHING ELSE. Your output should not look like:
     ---
     Here's a song with a list of notes:
 
@@ -158,7 +160,6 @@ def query(theme):
     C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-2 G4-1 E4-1 C4-1 E4-1 C4-1 G3-2 A3-1 G3-1
     E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 E4-1 B3-2 C4-1 B3-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-2 B4-1 G4-1 E4-1 G4-1 E4-1 B3-2 C4-1 B3-1
     G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-2 D4-1 B3-1 G3-1 B3-1 G3-1 G3-1 D3-2 E3-1 D3-1"""
-
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
     )
@@ -180,12 +181,15 @@ def process(file, instructions):
         pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
         pitch = np.mean(pitches)
         # process instructions
-        allnotes = instructions.split(" ")
+        allnotes = line.split(" ")
         instructnotes = []
         instructlength = []
         for note in allnotes:
-            instructnotes = note.split("-")[0]
-            instructlength = float(note.split("-")[1])
+            if len(note.split("-")) != 2:
+                print("uhhhhh")
+                continue
+            instructnotes.append(note.split("-")[0])
+            instructlength.append(float(note.split("-")[1]))
         # for each instruction, change note pitch and/or length
         song = []
         for i in range(len(instructnotes)):
@@ -197,7 +201,10 @@ def process(file, instructions):
             # change pitch
             change_note_pitch(tempfile, pitch, instructnotes[i])
             # append temp to final
-            combine_notes([thispart, tempfile], thispart)
+            if i == 0:
+                combine_notes([tempfile], thispart)
+            else:
+                combine_notes([thispart, tempfile], thispart)
             # pseudo for new process
             # for each instruction, change note length of original, save to another audio file (temp)
             # then feed this temp audio file into the change pitch and overwrite temp
@@ -240,7 +247,7 @@ def change_note_pitch(file, original, note):
     # change it into number of steps needed to shift pitch
     n_steps = 12 * math.log2(target_freq / original_freq)
     # generate new pitches by pitch shifting
-    y_pitch_shifted = librosa.effects.pitch_shift(y, sr, n_steps=n_steps)
+    y_pitch_shifted = librosa.effects.pitch_shift(y, sr=sr, n_steps=n_steps)
     # create new audio with the new pitches
     sf.write(file, y_pitch_shifted, sr)
     # return the audio
@@ -255,7 +262,7 @@ def change_note_len(file, length):
     stretch_factor = original_length / length
 
     # apply change
-    length_adj_file = librosa.effects.time_stretch(y, stretch_factor)
+    length_adj_file = librosa.effects.time_stretch(y, rate=stretch_factor)
 
     # save to new file
     sf.write(file, length_adj_file, sr)
