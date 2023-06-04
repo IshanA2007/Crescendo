@@ -1,3 +1,14 @@
-Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
+Create a song by outputting a list of notes. This song should fit the theme: happy. Output the song in a series of notes strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times per note for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
 
-After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. The same rules apply.
+Complete this process for a bass, guitar, piano, and drums part such that when the parts are combined, the song sounds cohesive and harmonious. Make sure to include the instrument before each list of notes, separated with a colon. 
+
+Here is a short example, your song should be longer: 
+
+Guitar:
+E4-1 G4-0.5 C4-1 E4-0.5 G4-1 C5-0.5 E4-1 G4-0.5 C4-1 E4-0.5 G4-1 C5-0.5
+
+Piano:
+C4-1 E4-0.5 G4-1 E4-0.5 C4-1 E4-0.5 G4-1 E4-0.5 C4-1 E4-0.5 G4-1 E4-0.5
+
+Bass:
+C3-2 G2-1 A2-1 G2-0.5 C3-2 G2-1 A2-1 G2-0.5

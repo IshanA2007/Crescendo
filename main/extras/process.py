@@ -188,7 +188,7 @@ notes = {
 # gpt prompt-response
 def query(theme):
     # create a prompt that can be fed to chatgpt to produce instructions personalized by theme
-    prompt =f"""Create a song by outputting a list of notes. This song should fit the theme: {theme}. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
+    prompt = f"""Create a song by outputting a list of notes. This song should fit the theme: {theme}. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
 
     After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. Each line must last the same number of seconds. Here are the notes you can use:
     {notes.keys()}
@@ -215,7 +215,6 @@ def query(theme):
     )
     print(response["choices"][0]["message"]["content"])
     return response["choices"][0]["message"]["content"]
-    
 
 
 def process(file, instructions):
@@ -234,48 +233,22 @@ def process(file, instructions):
         pitch = np.mean(pitches)
         # process instructions
         allnotes = line.split(" ")
-        instructnotes = []
-        instructlength = []
-        for note in allnotes:
-            if len(note.split("-")) != 2:
-                print("uhhhhh")
-                continue
-            if note.split("-")[0] in notes:
-                instructnotes.append(note.split("-")[0])
-                try:
-                    instructlength.append(float(note.split("-")[1]))
-                except: # in case a period was added at the end, for example, "A1-1."
-                    instructlength.append(float(note.split("-")[1][0]))
-            else:
-                print("oh no")
+        instructions = process_instructions([], [], allnotes)
+        instructnotes = instructions[0]
+        instructlength = instructions[1]
         # for each instruction, change note pitch and/or length
         song = []
-        for i in range(len(instructnotes)):
-            print(i)
-            tempfile = BASE_DIR + "/extras/audios/temp.wav"
-            sf.write(tempfile, y, sr)
-            # change length
-            change_note_len(tempfile, instructlength[i])
-            # change pitch
-            change_note_pitch(tempfile, pitch, instructnotes[i])
-            # append temp to final
-            if i == 0:
-                combine_notes([tempfile], thispart)
-            else:
-                combine_notes([thispart, tempfile], thispart)
-            # pseudo for new process
-            # for each instruction, change note length of original, save to another audio file (temp)
-            # then feed this temp audio file into the change pitch and overwrite temp
-            # then combine temp to a final audio file which is returned at the end
-            # repeat by overriding temp (this method uses only 3 files instead of having a bunch created)
+        create_song(instructnotes, instructlength, thispart, y, sr, pitch)
+
     finalfile = BASE_DIR + "/extras/audios/final.wav"
-    harmonize(songdata, finalfile) # these need to layer on top of each other
+    harmonize(songdata, finalfile)  # these need to layer on top of each other
     return finalfile
+
 
 def harmonize(harmonies, filename):
     # given a list of music files, layer on top of each other
     y, sr = librosa.load(harmonies[0], sr=None)
-    common_sr = 44100 # just in case the files are different
+    common_sr = 44100  # just in case the files are different
     y = librosa.resample(y, orig_sr=sr, target_sr=common_sr)
     mix = y
     for i in range(1, len(harmonies)):
@@ -286,10 +259,13 @@ def harmonize(harmonies, filename):
             mix = np.pad(mix, (0, len(y) - len(mix)))
         elif len(y) < len(mix):
             y = np.pad(y, (0, len(mix) - len(y)))
-        
+
         mix = np.add(mix, y)
-    mix = librosa.util.normalize(mix) # we don't want a value over 1 or things will break
+    mix = librosa.util.normalize(
+        mix
+    )  # we don't want a value over 1 or things will break
     sf.write(filename, mix, common_sr)
+
 
 def combine_notes(song, filename):
     # given a list of music files, combine one after the other
@@ -330,3 +306,41 @@ def change_note_len(file, length):
     # save to new file
     sf.write(file, length_adj_file, sr)
     return file
+
+
+def process_instructions(instructnotes, instructlength, allnotes):
+    for note in allnotes:
+        if len(note.split("-")) != 2:
+            print("uhhhhh")
+            continue
+        if note.split("-")[0] in notes:
+            instructnotes.append(note.split("-")[0])
+            try:
+                instructlength.append(float(note.split("-")[1]))
+            except:  # in case a period was added at the end, for example, "A1-1."
+                instructlength.append(float(note.split("-")[1][0]))
+        else:
+            print("oh no")
+
+    return instructnotes, instructlength
+
+
+def create_song(instructnotes, instructlength, thispart, y, sr, pitch):
+    for i in range(len(instructnotes)):
+        print(i)
+        tempfile = BASE_DIR + "/extras/audios/temp.wav"
+        sf.write(tempfile, y, sr)
+        # change length
+        change_note_len(tempfile, instructlength[i])
+        # change pitch
+        change_note_pitch(tempfile, pitch, instructnotes[i])
+        # append temp to final
+        if i == 0:
+            combine_notes([tempfile], thispart)
+        else:
+            combine_notes([thispart, tempfile], thispart)
+        # pseudo for new process
+        # for each instruction, change note length of original, save to another audio file (temp)
+        # then feed this temp audio file into the change pitch and overwrite temp
+        # then combine temp to a final audio file which is returned at the end
+        # repeat by overriding temp (this method uses only 3 files instead of having a bunch created)
