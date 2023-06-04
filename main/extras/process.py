@@ -190,7 +190,7 @@ def query(theme):
     # create a prompt that can be fed to chatgpt to produce instructions personalized by theme
     prompt =f"""Create a song by outputting a list of notes. This song should fit the theme: {theme}. Output the song in one line strictly, and insert a dash with the time in seconds the note should be afterwards. Make sure there is variance in the times for added complexity. For an example format (the song should be much longer than this): C0-1 E1-4 G#0-2 A1-2
 
-    After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. Here are the notes you can use:
+    After this, generate 2 more lists like this to harmonize perfectly with the first generated notes. Each line must last the same number of seconds. Here are the notes you can use:
     {notes.keys()}
     The same rules apply. Output these lines directly below the first line, and NOTHING ELSE. Your output should not look like:
     ---
@@ -240,8 +240,14 @@ def process(file, instructions):
             if len(note.split("-")) != 2:
                 print("uhhhhh")
                 continue
-            instructnotes.append(note.split("-")[0])
-            instructlength.append(float(note.split("-")[1]))
+            if note.split("-")[0] in notes:
+                instructnotes.append(note.split("-")[0])
+                try:
+                    instructlength.append(float(note.split("-")[1]))
+                except: # in case a period was added at the end, for example, "A1-1."
+                    instructlength.append(float(note.split("-")[1][0]))
+            else:
+                print("oh no")
         # for each instruction, change note pitch and/or length
         song = []
         for i in range(len(instructnotes)):
@@ -275,6 +281,12 @@ def harmonize(harmonies, filename):
     for i in range(1, len(harmonies)):
         y, sr = librosa.load(harmonies[i], sr=None)
         y = librosa.resample(y, orig_sr=sr, target_sr=common_sr)
+        # pad the shorter array
+        if len(mix) < len(y):
+            mix = np.pad(mix, (0, len(y) - len(mix)))
+        elif len(y) < len(mix):
+            y = np.pad(y, (0, len(mix) - len(y)))
+        
         mix = np.add(mix, y)
     mix = librosa.util.normalize(mix) # we don't want a value over 1 or things will break
     sf.write(filename, mix, common_sr)
