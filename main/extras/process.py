@@ -13,7 +13,8 @@ env_vars = dotenv_values(".env")
 openai.api_key = env_vars["api_key"]
 notes = {
     "C0": 16.35,
-    "C#0/Db0": 17.32,
+    "C#0": 17.32,
+    "Db0": 17.32,
     "D0": 18.35,
     "D#0/Eb0": 19.45,
     "E0": 20.60,
@@ -22,15 +23,19 @@ notes = {
     "G0": 24.50,
     "G#0/Ab0": 25.96,
     "A0": 27.50,
-    "A#0/Bb0": 29.14,
+    "A#0": 29.14,
+    "Bb0": 29.14,
     "B0": 30.87,
     "C1": 32.70,
-    "C#1/Db1": 34.65,
+    "C#1": 34.65,
+    "Db1": 34.65,
     "D1": 36.71,
-    "D#1/Eb1": 38.89,
+    "D#1": 38.89,
+    "Eb1": 38.89,
     "E1": 41.20,
     "F1": 43.65,
-    "F#1/Gb1": 46.25,
+    "F#1": 46.25,
+    "Gb1": 46.25,
     "G1": 49.00,
     "G#1/Ab1": 51.91,
     "A1": 55.00,
@@ -165,6 +170,7 @@ def query(theme):
     )
     print(response["choices"][0]["message"]["content"])
     return response["choices"][0]["message"]["content"]
+    
 
 
 def process(file, instructions):
@@ -178,6 +184,7 @@ def process(file, instructions):
         # determine starting pitch
         audio_file = file
         y, sr = librosa.load(audio_file, sr=None)
+        y, _ = librosa.effects.trim(y)
         pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
         pitch = np.mean(pitches)
         # process instructions
@@ -218,25 +225,24 @@ def harmonize(harmonies, filename):
     # given a list of music files, layer on top of each other
     y, sr = librosa.load(harmonies[0], sr=None)
     common_sr = 44100 # just in case the files are different
-    y = librosa.resample(y, sr, common_sr)
+    y = librosa.resample(y, orig_sr=sr, target_sr=common_sr)
     mix = y
     for i in range(1, len(harmonies)):
         y, sr = librosa.load(harmonies[i], sr=None)
-        y = librosa.resample(y, sr, common_sr)
+        y = librosa.resample(y, orig_sr=sr, target_sr=common_sr)
         mix = np.add(mix, y)
     mix = librosa.util.normalize(mix) # we don't want a value over 1 or things will break
     sf.write(filename, mix, common_sr)
 
 def combine_notes(song, filename):
-    # given a list of music files, concatenate together
+    # given a list of music files, combine one after the other
     # load first audio file to add everything to
     audio, sr = librosa.load(song[0], sr=None)
     # loop and append everything else
     for file in song[1:]:
         thispart, _ = librosa.load(file, sr=None)
         audio = np.concatenate((audio, thispart))
-    y, sr = librosa.load(audio)
-    sf.write(filename, y, sr)
+    sf.write(filename, audio, sr)
 
 
 def change_note_pitch(file, original, note):
